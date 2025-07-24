@@ -25,6 +25,7 @@
 2. In-game:
    - **F2**: Toggle UI
    - **F3**: Next track
+   - **Load**: Load audiofiles from path. **A non-existent directory will be created**
    - UI Buttons: Load/play/shuffle music
 
 ## Supported Formats
