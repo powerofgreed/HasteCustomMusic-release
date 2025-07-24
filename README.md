@@ -26,7 +26,7 @@
    - **F2**: Toggle UI
    - **F3**: Next track
    - **Load**: Load audiofiles from path. **A non-existent directory will be created**
-   - UI Buttons: Load/play/shuffle music
+   - **UI Buttons**: Play order, Shuffle, Next track
 
 ## Supported Formats
 | Format | Library       | Notes                      |
