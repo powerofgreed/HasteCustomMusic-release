@@ -18,6 +18,8 @@
 
 4.Download **HasteModPlaylist-full-v0.0.1.7z** and extract in game directory.
 
+ **--(Optional) [BepInEx.ConfigurationManager](https://github.com/BepInEx/BepInEx.ConfigurationManager)** - an additional plugin for much easier plugins configuration
+
 ## Usage
 1. Place music files in *`BepInEx/CustomMusic/`* or any choosen path in **.cfg**
 2. In-game:
