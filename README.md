@@ -10,7 +10,7 @@
 - Volume control and playback modes
 
 ## Installation
-1.Download [BepInEx](https://github.com/BepInEx/BepInEx)
+1.Download [BepInEx (x64)](https://github.com/BepInEx/BepInEx)
 
 2.To make Haste hook from BepInEx need to open *\Haste\BepInEx\core* folder and  **delete each .dll** which start with **MONO***
 
