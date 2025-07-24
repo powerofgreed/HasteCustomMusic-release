@@ -40,7 +40,7 @@
 - **No music playing?** Check file paths and formats
 - **UI not showing?** Press F2 to toggle
 - **Crashing?** Install [.NET 4.8 Runtime](https://dotnet.microsoft.com/download/dotnet-framework/net48)
-- Do not load too much audio files. **Whole playlist is stored in RAM**. (for now at least)
+- Do not load too much audio files. **Whole playlist is stored in RAM**. (till future updates at least...)
 
 ## Building from Source
 1. Clone repo: `git clone https://github.com/yourname/Haste-Custom-Music-Mod.git`
