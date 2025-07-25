@@ -25,8 +25,9 @@
 2. In-game:
    - **F2**: Toggle UI
    - **F3**: Next track
-   - **Load**: Load audiofiles from path. **A non-existent directory will be created**
+   - **Load**: Load audiofiles from path. **A non-existent directory will be created. RAM heavy operation**
    - **UI Buttons**: Play order, Shuffle, Next track
+   - **Lock Custom**: Prevent playlist from changing back to default
 
 ## Supported Formats
 | Format | Library       | Notes                      |
