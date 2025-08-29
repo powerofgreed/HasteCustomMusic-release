@@ -10,13 +10,13 @@
 - Volume control and playback modes
 
 ## Installation
-1.Download [BepInEx (x64)](https://github.com/BepInEx/BepInEx)  **BepInEx_win_x64_5.4.23.3.zip**
+1.Download [BepInEx (x64)](https://github.com/BepInEx/BepInEx/releases)  **BepInEx_win_x64_5.4.23.3.zip**
 
 2.To make Haste hook from BepInEx need to open *\Haste\BepInEx\core* folder and  **delete each file** which start with **MONO***
 
 3.After first game launch, open *\Haste\BepInEx\config\BepInEx.cfg* and change **HideManagerGameObject = false** to **HideManagerGameObject = true**
 
-4.Download **HasteModPlaylist-full-v0.0.1.7z** and extract in game directory.
+4.Download  [**HasteModPlaylist-full**](https://github.com/powerofgreed/HasteModPlaylist-release/releases) and extract in game directory.
 
  **--(Optional) [BepInEx.ConfigurationManager](https://github.com/BepInEx/BepInEx.ConfigurationManager)** - an additional plugin for much easier plugins configuration
 
