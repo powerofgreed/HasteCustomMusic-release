@@ -69,8 +69,8 @@ ManagedBass requires these native libraries in your plugin folder:
 3. Restore **NuGet** packages
 4. Build solution (targets **netstandard2.1**)
 5. Copy output **HasteCustomMusic.dll** to `BepInEx/plugins`
-6. **ManagedBass** .dll's provided via NuGet
-7. **Bass add-ons** via their official site http://www.un4seen.com
+6. **ManagedBass x64** .dll's provided via NuGet
+7. **Bass add-ons x64** via their official site http://www.un4seen.com
 
 ### Project Structure
 ```
