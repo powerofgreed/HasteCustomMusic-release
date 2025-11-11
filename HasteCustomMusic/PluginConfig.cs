@@ -83,9 +83,9 @@ public static class PluginConfig
         private static readonly string[] DefaultStreams = new string[]
         {
         "https://c22.radioboss.fm/stream/144",
-        "https://stream.radio.co/s8d0d5b6b9/listen",
+        "http://funkyunclefm.net:8000/fufm",
         "https://icecast.radiofrance.fr/fip-hifi.aac",
-        "https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one"
+        "http://stream.animeradio.de/animeradio.mp3"
         };
 
         public static List<string> HybridPlaylistPaths = new List<string>();
