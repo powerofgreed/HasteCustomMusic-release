@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36301.6 d17.14
+VisualStudioVersion = 17.14.36616.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HasteModPlaylist", "HasteModPlaylist.csproj", "{3F489B12-8940-4301-A688-2C3C7A41848B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HasteCustomMusic", "HasteCustomMusic\HasteCustomMusic.csproj", "{065F2009-5060-4E28-BCB1-EB2B1987A7FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3F489B12-8940-4301-A688-2C3C7A41848B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3F489B12-8940-4301-A688-2C3C7A41848B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3F489B12-8940-4301-A688-2C3C7A41848B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3F489B12-8940-4301-A688-2C3C7A41848B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{065F2009-5060-4E28-BCB1-EB2B1987A7FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{065F2009-5060-4E28-BCB1-EB2B1987A7FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{065F2009-5060-4E28-BCB1-EB2B1987A7FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{065F2009-5060-4E28-BCB1-EB2B1987A7FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {E18128E4-D6FA-4AC3-AAF8-BC63624F9AF6}
+		SolutionGuid = {C0ED652C-1B8F-4744-8F9F-3830567BC9BF}
 	EndGlobalSection
 EndGlobal
