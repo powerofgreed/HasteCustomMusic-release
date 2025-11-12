@@ -28,6 +28,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using static CustomMusicManager;
 using static StreamingClip;
+using Input = UnityEngine.Input;
 using Color = UnityEngine.Color;
 
 [BepInPlugin("com.PoG.HasteCustomMusic", "Custom Playlist", "0.0.2")]
@@ -224,61 +225,49 @@ public class MusicDisplayPlugin : BaseUnityPlugin
         if (!_showGUI || MusicPlayer.Instance == null) return;
         if (!StyleInitialized) InitStyles();
 
-        try
+            try
+    {
+        // Use original window rects 
+        _windowRect = GUI.Window(0, _windowRect, DrawMusicWindow, "˚✩*‧₊༺ Music Player " + $"({PluginConfig.ToggleUIKey.Value}) ༻₊‧*✩˚");
+
+        // Playlist window below main window
+        if (_playlistWindowVisible)
         {
-            // Scale window rect for drawing
-            Rect scaledWindowRect = ScaleRect(_windowRect);
-            scaledWindowRect = GUI.Window(0, scaledWindowRect, DrawMusicWindow, "˚✩*‧₊༺ Music Player " + $"({PluginConfig.ToggleUIKey.Value}) ༻₊‧*✩˚");
-
-            
-            _windowRect = InverseScaleRect(scaledWindowRect);
-
-            // Playlist window below main window
-            if (_playlistWindowVisible)
+            // Only set initial position once
+            if (_playlistWindowRect.width == 0)
             {
-                Rect scaledPlaylistRect;
-
-                // Only set initial position once
-                if (_playlistWindowRect.width == 0)
-                {
-                    scaledPlaylistRect = new Rect(
-                        scaledWindowRect.x,
-                        scaledWindowRect.y + scaledWindowRect.height + (5 * _uiScale),
-                        scaledWindowRect.width,
-                        160 * _uiScale
-                    );
-                }
-                else
-                {
-                    // Preserve custom height but update position relative to main window
-                    scaledPlaylistRect = new Rect(
-                        scaledWindowRect.x,
-                        scaledWindowRect.y + scaledWindowRect.height,
-                        scaledWindowRect.width,
-                        _playlistWindowRect.height * _uiScale
-                    );
-                }
-
-                scaledPlaylistRect = GUI.Window(1, scaledPlaylistRect, DrawPlaylistWindow, "⋆⋆✮♪♫ Playlist ♫♪✮⋆⋆");
-
-               
-                _playlistWindowRect = InverseScaleRect(scaledPlaylistRect);
+                _playlistWindowRect = new Rect(
+                    _windowRect.x,
+                    _windowRect.y + _windowRect.height + 5,
+                    _windowRect.width,
+                    160
+                );
             }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"GUI Error: {e}");
-            _showGUI = false;
-        }
-        finally
-        {
-            // Restore original matrix
-            GUI.matrix = _originalMatrix;
-        }
+            else
+            {
+                // Preserve custom height but update position relative to main window
+                _playlistWindowRect.x = _windowRect.x;
+                _playlistWindowRect.y = _windowRect.y + _windowRect.height;
+                _playlistWindowRect.width = _windowRect.width;
+            }
 
-        // Handle resizing outside of window drawing (use original coordinates)
-        HandleResizing();
+            _playlistWindowRect = GUI.Window(1, _playlistWindowRect, DrawPlaylistWindow, "⋆⋆✮♪♫ Playlist ♫♪✮⋆⋆");
+        }
     }
+    catch (System.Exception e)
+    {
+        Debug.LogError($"GUI Error: {e}");
+        _showGUI = false;
+    }
+    finally
+    {
+        // Restore original matrix
+        GUI.matrix = _originalMatrix;
+    }
+
+    // Handle resizing outside of window drawing (use original coordinates)
+    HandleResizing();
+}
     private void InitializePlaylistData()
     {
         try
@@ -353,51 +342,54 @@ public class MusicDisplayPlugin : BaseUnityPlugin
     }
 
     private void HandleResizing()
+{
+    // Convert resize handle to screen coordinates using our scale
+    Rect absoluteResizeHandle = new Rect(
+        _playlistWindowRect.x * _uiScale + _resizeHandle.x * _uiScale,
+        _playlistWindowRect.y * _uiScale + _resizeHandle.y * _uiScale,
+        _resizeHandle.width * _uiScale,
+        _resizeHandle.height * _uiScale
+    );
+
+    // Convert mouse position to screen coordinates (GUI.matrix affects Event.current.mousePosition)
+    Vector2 mousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+
+    if (Event.current.type == EventType.MouseDown && absoluteResizeHandle.Contains(mousePosition))
     {
-        // Convert resize handle to screen coordinates using our scale
-        Rect absoluteResizeHandle = new Rect(
-            _playlistWindowRect.x * _uiScale + _resizeHandle.x * _uiScale,
-            _playlistWindowRect.y * _uiScale + _resizeHandle.y * _uiScale,
-            _resizeHandle.width * _uiScale,
-            _resizeHandle.height * _uiScale
+        _isResizing = true;
+        _resizeStartMouse = mousePosition;
+        _resizeStartHeight = _playlistWindowRect.height;
+        Event.current.Use(); // Mark event as handled
+    }
+
+    if (_isResizing)
+    {
+        // Get current mouse position in screen coordinates
+        Vector2 currentMousePos = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+
+        float heightDelta = (currentMousePos.y - _resizeStartMouse.y) / _uiScale;
+        float newHeight = Mathf.Clamp(
+            _resizeStartHeight + heightDelta,
+            160, // Minimum height
+            700  // Maximum height
         );
 
-        if (Event.current.type == EventType.MouseDown && absoluteResizeHandle.Contains(Event.current.mousePosition))
+        // Only update if height actually changed
+        if (Math.Abs(newHeight - _playlistWindowRect.height) > 0.1f)
         {
-            _isResizing = true;
-            _resizeStartMouse = Event.current.mousePosition;
-            _resizeStartHeight = _playlistWindowRect.height;
-            Event.current.Use(); // Mark event as handled
+            _playlistWindowRect.height = newHeight;
         }
 
-        if (_isResizing)
+        // End resizing on mouse up
+        if (Event.current.type == EventType.MouseUp)
         {
-            // Get current mouse position
-            Vector2 mousePos = Event.current.mousePosition;
-
-            float heightDelta = (mousePos.y - _resizeStartMouse.y) / _uiScale;
-            float newHeight = Mathf.Clamp(
-                _resizeStartHeight + heightDelta,
-                160, // Minimum height
-                700  // Maximum height
-            );
-
-            // Only update if height actually changed
-            if (Math.Abs(newHeight - _playlistWindowRect.height) > 0.1f)
-            {
-                _playlistWindowRect.height = newHeight;
-            }
-
-            // End resizing on mouse up
-            if (Event.current.type == EventType.MouseUp)
-            {
-                _isResizing = false;
-            }
-
-            // Repaint GUI to show changes immediately
-            GUI.changed = true;
+            _isResizing = false;
         }
+
+        // Repaint GUI to show changes immediately
+        GUI.changed = true;
     }
+}
 
     private void InitStyles()
     {
@@ -2338,26 +2330,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             Debug.Log($"UI Scale: {_uiScale} (Screen: {Screen.width}x{Screen.height})");
         }
     }
-
-    private Rect ScaleRect(Rect rect)
-    {
-        return new Rect(
-            rect.x * _uiScale,
-            rect.y * _uiScale,
-            rect.width * _uiScale,
-            rect.height * _uiScale
-        );
-    }
-
-    private Rect InverseScaleRect(Rect rect)
-    {
-        return new Rect(
-            rect.x / _uiScale,
-            rect.y / _uiScale,
-            rect.width / _uiScale,
-            rect.height / _uiScale
-        );
-    }
+    
     private void CheckXInputGamepad()
     {
         // D-pad Up: Toggle UI (Xbox controller D-pad up)
