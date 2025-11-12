@@ -79,11 +79,10 @@ Haste/
 │   └── core/                    # BepInEx core DLLs
 ├── Haste_Data/
 │   └── Managed/                # Game managed assemblies
-├── HasteCustomMusic-release/   # Solution directory
-│   ├── HasteCustomMusic/       # Project directory
-│   │   └── HasteCustomMusic.csproj
-│   └── HasteModPlaylist.sln
-└── BepInEx/plugins/            # Output directory
+└── HasteCustomMusic-release/   # Solution directory
+    ├── HasteCustomMusic/       # Project directory
+    │   └── HasteCustomMusic.csproj
+    └── HasteModPlaylist.sln
 ```
 
 ## Credits
