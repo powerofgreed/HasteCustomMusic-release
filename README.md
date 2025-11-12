@@ -1,6 +1,8 @@
 ### 🎵HasteModPlaylist🎵
 
 <img width="406" height="463" alt="image" src="https://github.com/user-attachments/assets/131250fa-fc23-4a65-9f0b-c6bc2354b341" />
+
+
 This is BepInEx plugin allows you to listen you favorite tracks while you are playing you favorite game. Support multiple audio formats as well as streams, radio and etc.
 This mod works best with my another plugin which add audio visualisation to the game. [HasteModVisualisator](https://github.com/powerofgreed/HasteModVisualisator-release)
 
