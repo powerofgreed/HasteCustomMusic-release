@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
@@ -23,9 +23,9 @@
 		<Reference Include="Sirenix.Serialization">
 			<HintPath>..\..\Haste_Data\Managed\Sirenix.Serialization.dll</HintPath>
 		</Reference>
-		<Reference Include="UnityEngine.InputLegacyModule">
-			<HintPath>..\..\Haste_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
-		</Reference>
+	  <Reference Include="UnityEngine.InputLegacyModule">
+	    <HintPath>..\..\Haste_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+	  </Reference>
 		<Reference Include="Unity.InputSystem">
 			<HintPath>..\..\Haste_Data\Managed\Unity.InputSystem.dll</HintPath>
 		</Reference>
