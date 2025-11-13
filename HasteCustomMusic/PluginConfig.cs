@@ -23,6 +23,7 @@ public static class PluginConfig
     public static ConfigEntry<bool> PreloadEntirePlaylist;
     public static ConfigEntry<bool> EnableStreaming;
     public static ConfigEntry<bool> GamepadHotkeysEnabled;
+    public static ConfigEntry<bool> ProxySwitch;
 
     public static void Init(ConfigFile config)
     {
@@ -54,6 +55,10 @@ public static class PluginConfig
             Path.Combine(Application.dataPath, "CustomMusic"),
             "Local music directory path");
 
+
+        ProxySwitch = config.Bind("-------Loader-------", "Proxy switcher", false,
+            "Switch and reload game, if no internet error");
+
         LoaderPriority = config.Bind("-------Loader-------", "Priority",
             MusicDisplayPlugin.LoaderPriority.BassFirst,
             "Audio loader priority: BassFirst or OnlyUnity(low RAM usage,less formats)");
@@ -83,9 +88,9 @@ public static class PluginConfig
         private static readonly string[] DefaultStreams = new string[]
         {
         "https://c22.radioboss.fm/stream/144",
-        "https://stream.radio.co/s8d0d5b6b9/listen",
+        "http://funkyunclefm.net:8000/fufm",
         "https://icecast.radiofrance.fr/fip-hifi.aac",
-        "https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one"
+        "http://stream.animeradio.de/animeradio.mp3"
         };
 
         public static List<string> HybridPlaylistPaths = new List<string>();
