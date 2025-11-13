@@ -225,10 +225,10 @@ public class MusicDisplayPlugin : BaseUnityPlugin
         if (!_showGUI || MusicPlayer.Instance == null) return;
         if (!StyleInitialized) InitStyles();
 
-            try
-    {
-        // Use original window rects 
-        _windowRect = GUI.Window(0, _windowRect, DrawMusicWindow, "˚✩*‧₊༺ Music Player " + $"({PluginConfig.ToggleUIKey.Value}) ༻₊‧*✩˚");
+        try
+        {
+            // Use original window rects 
+            _windowRect = GUI.Window(0, _windowRect, DrawMusicWindow, "˚✩*‧₊༺ Music Player " + $"({PluginConfig.ToggleUIKey.Value}) ༻₊‧*✩˚");
 
         // Playlist window below main window
         if (_playlistWindowVisible)
@@ -236,19 +236,25 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             // Only set initial position once
             if (_playlistWindowRect.width == 0)
             {
-                _playlistWindowRect = new Rect(
-                    _windowRect.x,
-                    _windowRect.y + _windowRect.height + 5,
-                    _windowRect.width,
-                    160
-                );
-            }
-            else
-            {
-                // Preserve custom height but update position relative to main window
-                _playlistWindowRect.x = _windowRect.x;
-                _playlistWindowRect.y = _windowRect.y + _windowRect.height;
-                _playlistWindowRect.width = _windowRect.width;
+                // Only set initial position once
+                if (_playlistWindowRect.width == 0)
+                {
+                    _playlistWindowRect = new Rect(
+                        _windowRect.x,
+                        _windowRect.y + _windowRect.height + 5,
+                        _windowRect.width,
+                        160
+                    );
+                }
+                else
+                {
+                    // Preserve custom height but update position relative to main window
+                    _playlistWindowRect.x = _windowRect.x;
+                    _playlistWindowRect.y = _windowRect.y + _windowRect.height;
+                    _playlistWindowRect.width = _windowRect.width;
+                }
+
+                _playlistWindowRect = GUI.Window(1, _playlistWindowRect, DrawPlaylistWindow, "⋆⋆✮♪♫ Playlist ♫♪✮⋆⋆");
             }
 
             _playlistWindowRect = GUI.Window(1, _playlistWindowRect, DrawPlaylistWindow, "⋆⋆✮♪♫ Playlist ♫♪✮⋆⋆");
@@ -374,16 +380,44 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             700  // Maximum height
         );
 
-        // Only update if height actually changed
-        if (Math.Abs(newHeight - _playlistWindowRect.height) > 0.1f)
+        // Convert mouse position to screen coordinates (GUI.matrix affects Event.current.mousePosition)
+        Vector2 mousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+
+        if (Event.current.type == EventType.MouseDown && absoluteResizeHandle.Contains(mousePosition))
         {
-            _playlistWindowRect.height = newHeight;
+            _isResizing = true;
+            _resizeStartMouse = mousePosition;
+            _resizeStartHeight = _playlistWindowRect.height;
+            Event.current.Use(); // Mark event as handled
         }
 
         // End resizing on mouse up
         if (Event.current.type == EventType.MouseUp)
         {
-            _isResizing = false;
+            // Get current mouse position in screen coordinates
+            Vector2 currentMousePos = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+
+            float heightDelta = (currentMousePos.y - _resizeStartMouse.y) / _uiScale;
+            float newHeight = Mathf.Clamp(
+                _resizeStartHeight + heightDelta,
+                160, // Minimum height
+                700  // Maximum height
+            );
+
+            // Only update if height actually changed
+            if (Math.Abs(newHeight - _playlistWindowRect.height) > 0.1f)
+            {
+                _playlistWindowRect.height = newHeight;
+            }
+
+            // End resizing on mouse up
+            if (Event.current.type == EventType.MouseUp)
+            {
+                _isResizing = false;
+            }
+
+            // Repaint GUI to show changes immediately
+            GUI.changed = true;
         }
 
         // Repaint GUI to show changes immediately
@@ -984,7 +1018,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
     {
         _viewingPlaylistType = playlistType;
 
-        
+
         // Keep current tab when switching to default
         if (playlistType != PlaylistType.Default)
         {
@@ -1295,7 +1329,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
         // Draw playlist content
         DrawPlaylistContents(5, 20, _playlistWindowRect.width - 10, _playlistWindowRect.height - 25);
 
-       
+
         _resizeHandle = new Rect(0, _playlistWindowRect.height - 5, _playlistWindowRect.width, 10);
         GUI.Box(_resizeHandle, "", GUI.skin.button);
 
@@ -1455,7 +1489,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
                             trackIndexToAdd = viewedPlaylist.ShuffledOrder[displayIndex];
                         }
 
-                       
+
                         AddTrackToHybridPlaylist(_viewingPlaylistType, trackIndexToAdd);
 
                         _lastClickedTrack = -1;
@@ -1495,7 +1529,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
                         // Use the unified playback method
                         CustomMusicManager.PlayTrackWithMethod(trackIndexToPlay, _viewingPlaylistType);
 
-                        
+
                         if (viewedPlaylist != null)
                         {
                             viewedPlaylist.CurrentTrackIndex = trackIndexToPlay;
@@ -2196,7 +2230,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
         HMPAnimation.UpdateAnimation();
         if (PluginConfig.ToggleUIKey.Value.IsDown()) _showGUI = !_showGUI;
         if (PluginConfig.NextTrackKey.Value.IsDown()) CustomMusicManager.PlayNextTrack();
-        if (PluginConfig.GamepadHotkeysEnabled.Value)
+        if (PluginConfig.GamepadHotkeysEnabled.Value && Gamepad.current != null)
         {
             CheckXInputGamepad();
         }
@@ -2330,7 +2364,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             Debug.Log($"UI Scale: {_uiScale} (Screen: {Screen.width}x{Screen.height})");
         }
     }
-    
+
     private void CheckXInputGamepad()
     {
         // D-pad Up: Toggle UI (Xbox controller D-pad up)

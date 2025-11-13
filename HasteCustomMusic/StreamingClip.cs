@@ -86,6 +86,7 @@ public class StreamingClip : MonoBehaviour
     private static readonly object _initLock = new object();
     private static bool _bassInitialized = false;
     private static bool _pluginsLoaded = false;
+    public  static IntPtr _myProxyPtr;
 
     // public toggle used elsewhere
     public static bool TreatInputAsPlaylist { get; set; } = false;
@@ -1149,6 +1150,17 @@ public class StreamingClip : MonoBehaviour
             string modDir = Path.GetDirectoryName(typeof(StreamingClip).Assembly.Location);
             try { SetDllDirectory(modDir); } catch { }
             Bass.Configure(Configuration.NetPlaylist, true);
+            if(PluginConfig.ProxySwitch.Value == true)
+            {
+                _myProxyPtr = Marshal.StringToHGlobalAnsi("");
+                Bass.Configure(Configuration.NetProxy, _myProxyPtr);
+            }
+            else
+            {
+                _myProxyPtr = Marshal.StringToHGlobalAnsi(null);
+                Bass.Configure(Configuration.NetProxy, _myProxyPtr);
+            }
+            
 
             try
             {

@@ -23,6 +23,7 @@ public static class PluginConfig
     public static ConfigEntry<bool> PreloadEntirePlaylist;
     public static ConfigEntry<bool> EnableStreaming;
     public static ConfigEntry<bool> GamepadHotkeysEnabled;
+    public static ConfigEntry<bool> ProxySwitch;
 
     public static void Init(ConfigFile config)
     {
@@ -53,6 +54,10 @@ public static class PluginConfig
         LocalMusicPath = config.Bind("-------Loader-------", "LocalPath:",
             Path.Combine(Application.dataPath, "CustomMusic"),
             "Local music directory path");
+
+
+        ProxySwitch = config.Bind("-------Loader-------", "Proxy switcher", false,
+            "Switch and reload game, if no internet error");
 
         LoaderPriority = config.Bind("-------Loader-------", "Priority",
             MusicDisplayPlugin.LoaderPriority.BassFirst,
