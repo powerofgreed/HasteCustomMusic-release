@@ -230,8 +230,11 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             // Use original window rects 
             _windowRect = GUI.Window(0, _windowRect, DrawMusicWindow, "˚✩*‧₊༺ Music Player " + $"({PluginConfig.ToggleUIKey.Value}) ༻₊‧*✩˚");
 
-            // Playlist window below main window
-            if (_playlistWindowVisible)
+        // Playlist window below main window
+        if (_playlistWindowVisible)
+        {
+            // Only set initial position once
+            if (_playlistWindowRect.width == 0)
             {
                 // Only set initial position once
                 if (_playlistWindowRect.width == 0)
@@ -253,21 +256,24 @@ public class MusicDisplayPlugin : BaseUnityPlugin
 
                 _playlistWindowRect = GUI.Window(1, _playlistWindowRect, DrawPlaylistWindow, "⋆⋆✮♪♫ Playlist ♫♪✮⋆⋆");
             }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"GUI Error: {e}");
-            _showGUI = false;
-        }
-        finally
-        {
-            // Restore original matrix
-            GUI.matrix = _originalMatrix;
-        }
 
-        // Handle resizing outside of window drawing (use original coordinates)
-        HandleResizing();
+            _playlistWindowRect = GUI.Window(1, _playlistWindowRect, DrawPlaylistWindow, "⋆⋆✮♪♫ Playlist ♫♪✮⋆⋆");
+        }
     }
+    catch (System.Exception e)
+    {
+        Debug.LogError($"GUI Error: {e}");
+        _showGUI = false;
+    }
+    finally
+    {
+        // Restore original matrix
+        GUI.matrix = _originalMatrix;
+    }
+
+    // Handle resizing outside of window drawing (use original coordinates)
+    HandleResizing();
+}
     private void InitializePlaylistData()
     {
         try
@@ -342,13 +348,36 @@ public class MusicDisplayPlugin : BaseUnityPlugin
     }
 
     private void HandleResizing()
+{
+    // Convert resize handle to screen coordinates using our scale
+    Rect absoluteResizeHandle = new Rect(
+        _playlistWindowRect.x * _uiScale + _resizeHandle.x * _uiScale,
+        _playlistWindowRect.y * _uiScale + _resizeHandle.y * _uiScale,
+        _resizeHandle.width * _uiScale,
+        _resizeHandle.height * _uiScale
+    );
+
+    // Convert mouse position to screen coordinates (GUI.matrix affects Event.current.mousePosition)
+    Vector2 mousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+
+    if (Event.current.type == EventType.MouseDown && absoluteResizeHandle.Contains(mousePosition))
     {
-        // Convert resize handle to screen coordinates using our scale
-        Rect absoluteResizeHandle = new Rect(
-            _playlistWindowRect.x * _uiScale + _resizeHandle.x * _uiScale,
-            _playlistWindowRect.y * _uiScale + _resizeHandle.y * _uiScale,
-            _resizeHandle.width * _uiScale,
-            _resizeHandle.height * _uiScale
+        _isResizing = true;
+        _resizeStartMouse = mousePosition;
+        _resizeStartHeight = _playlistWindowRect.height;
+        Event.current.Use(); // Mark event as handled
+    }
+
+    if (_isResizing)
+    {
+        // Get current mouse position in screen coordinates
+        Vector2 currentMousePos = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+
+        float heightDelta = (currentMousePos.y - _resizeStartMouse.y) / _uiScale;
+        float newHeight = Mathf.Clamp(
+            _resizeStartHeight + heightDelta,
+            160, // Minimum height
+            700  // Maximum height
         );
 
         // Convert mouse position to screen coordinates (GUI.matrix affects Event.current.mousePosition)
@@ -362,7 +391,8 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             Event.current.Use(); // Mark event as handled
         }
 
-        if (_isResizing)
+        // End resizing on mouse up
+        if (Event.current.type == EventType.MouseUp)
         {
             // Get current mouse position in screen coordinates
             Vector2 currentMousePos = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
@@ -389,7 +419,11 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             // Repaint GUI to show changes immediately
             GUI.changed = true;
         }
+
+        // Repaint GUI to show changes immediately
+        GUI.changed = true;
     }
+}
 
     private void InitStyles()
     {
