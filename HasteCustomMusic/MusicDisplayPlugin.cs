@@ -2117,6 +2117,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             // Switch to Hybrid playlist type
             CustomMusicManager.CurrentPlaybackPlaylistType = PlaylistType.Hybrid;
             PlaylistManager.CurrentPlaylistType = PlaylistType.Hybrid;
+            CustomMusicManager.CurrentPlaybackMethod = PlaybackMethod.Streaming;
 
             // Start streaming the track directly
             CustomMusicManager.StartStreaming(path);
@@ -2171,6 +2172,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
         {
             // Direct stream connection - no clearing needed
             CustomMusicManager.StartStreaming(_customStreamPath);
+            CustomMusicManager.CurrentPlaybackMethod = PlaybackMethod.Streaming;
             CustomMusicManager.CurrentPlaybackPlaylistType = PlaylistType.Streams;
         }
     }

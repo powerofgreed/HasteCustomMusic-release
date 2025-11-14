@@ -30,7 +30,7 @@ public class CustomMusicManager : MonoBehaviour
 {
     public enum PlaybackMethod { UnityAudio, Streaming }
 
-    public static PlaybackMethod CurrentPlaybackMethod { get; private set; } = PlaybackMethod.UnityAudio;
+    public static PlaybackMethod CurrentPlaybackMethod { get; set; } = PlaybackMethod.UnityAudio;
     // ------------------------------
     // Public collections and state
     // ------------------------------
