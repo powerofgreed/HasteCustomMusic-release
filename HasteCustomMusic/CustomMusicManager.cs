@@ -17,10 +17,12 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using HarmonyLib;
 using Landfall.Haste.Music;
+using ManagedBass;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -50,7 +52,7 @@ public class CustomMusicManager : MonoBehaviour
         Hybrid,
         Streams
     }
-    public static bool IsLocalPlaylistPreloaded { get; private set; } = false;
+    
     public static bool IsUserInitiatedChange { get; set; } = false;
     // Individual playlist active checks
     public static bool IsLocalPlaylistActive => CurrentPlaybackPlaylistType == PlaylistType.Local;
@@ -76,6 +78,7 @@ public class CustomMusicManager : MonoBehaviour
         get => PluginConfig.LockEnabled?.Value ?? false;
         set { if (PluginConfig.LockEnabled != null) PluginConfig.LockEnabled.Value = value; }
     }
+    public static bool IsLocalPlaylistPreloaded { get; private set; } = false;
 
     public enum PlayOrder { Sequential, Loop, Random }
     public static PlayOrder CurrentPlayOrder
@@ -231,7 +234,7 @@ public class CustomMusicManager : MonoBehaviour
             var supported = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 {
                 // Core BASS formats
-                ".wav", ".mp3", ".ogg", ".aif", ".aiff", ".wma",
+                ".mp3", ".ogg", ".wav", ".mp2", ".mp1", ".aiff", ".m2a", ".mpa", ".m1a", ".mpg", ".mpeg", ".aif", ".mp3pro", ".bwf", ".mus", ".mod", ".mo3", ".s3m", ".xm", ".it", ".mtm", ".umx", ".mdz", ".s3z", ".itz", ".xmz",
 
                 // Add‑on formats (require DLLs, but safe to list)
                 ".flac",   // bassflac.dll
@@ -243,13 +246,34 @@ public class CustomMusicManager : MonoBehaviour
                 ".spx",    // bass_spx.dll
                 ".tta"     // bass_tta.dll
             };
-            var files = Directory.GetFiles(directoryPath, "*.*")
+            // Determine search option based on config
+            SearchOption searchOption = PluginConfig.ScanSubfolders?.Value == true
+                ? SearchOption.AllDirectories
+                : SearchOption.TopDirectoryOnly;
+
+
+            var files = Directory.GetFiles(directoryPath, "*.*", searchOption)
                             .Where(f => supported.Contains(Path.GetExtension(f).ToLowerInvariant()))
                             .ToList();
 
+            if (PluginConfig.ScanSubfolders?.Value == true)
+            {
+                // Sort by directory then filename for logical ordering
+                files = files.OrderBy(f => Path.GetDirectoryName(f))
+                            .ThenBy(f => f)
+                            .ToList();
+
+                Debug.Log($"Found {files.Count} audio files in {directoryPath} and subfolders");
+            }
+            else
+            {
+                Debug.Log($"Found {files.Count} audio files in {directoryPath}");
+            }
+
             if (files.Count == 0)
             {
-                Debug.LogWarning("No supported audio files found.");
+                Debug.LogWarning("No supported audio files found." +
+                    (PluginConfig.ScanSubfolders?.Value == true ? " (including subfolders)" : ""));
                 return false;
             }
 
@@ -421,16 +445,13 @@ public class CustomMusicManager : MonoBehaviour
         if (_streamingInstance != null)
         {
             try { _streamingInstance.StopStream(); } catch { }
-            try { UnityEngine.Object.Destroy(_streamingInstance); } catch { }
             _streamingInstance = null;
         }
 
         _streamingInstance = MusicPlayer.Instance.m_AudioSourceCurrent.gameObject.AddComponent<StreamingClip>();
 
         // Set mode immediately for radio-like URLs
-        if (path.ToLowerInvariant().Contains("/stream") ||
-            path.ToLowerInvariant().Contains("radio") ||
-            !Path.HasExtension(path))
+        if (!Path.HasExtension(path))
         {
             CurrentPlaybackMode = MusicPlayerMode.RadioStream;
         }
@@ -452,10 +473,9 @@ public class CustomMusicManager : MonoBehaviour
         if (_streamingInstance != null)
         {
             try { _streamingInstance.StopStream(); } catch { }
-            try { UnityEngine.Object.Destroy(_streamingInstance); } catch { }
             _streamingInstance = null;
             CurrentPlaybackMode = MusicPlayerMode.None;
-            Debug.Log("Streaming stopped");
+            if(PluginConfig.ShowDebug.Value)Debug.Log("Streaming stopped");
         }
     }
 
@@ -1230,10 +1250,6 @@ public class CustomMusicManager : MonoBehaviour
         {
             Debug.Log($"ChangePlaylist called with: {newPlaylist?.name}, track {trackId}");
 
-            
-
-
-            
             if (newPlaylist != null &&
                 newPlaylist != LocalPlaylist &&
                 newPlaylist != HybridPlaylist &&
@@ -1254,7 +1270,6 @@ public class CustomMusicManager : MonoBehaviour
                 return false; // Block the original method from executing
             }
             IsUserInitiatedChange = false;
-
 
             if (newPlaylist == LocalPlaylist)
             {

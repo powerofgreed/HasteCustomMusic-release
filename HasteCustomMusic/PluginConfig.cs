@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public static class PluginConfig
 {
@@ -18,6 +19,7 @@ public static class PluginConfig
     public static ConfigEntry<string> PlayOrder;
     public static ConfigEntry<bool> ForceLocalPlaylist;
     public static ConfigEntry<bool> ShowDebug;
+    public static ConfigEntry<bool> ScanSubfolders;
 
     // NEW CONFIG OPTIONS
     public static ConfigEntry<bool> PreloadEntirePlaylist;
@@ -66,6 +68,9 @@ public static class PluginConfig
         PreloadEntirePlaylist = config.Bind("-------Loader-------", "PreloadEntirePlaylist", false,
             "Preload whole folder via chosen loader. Less CPU usage, but RAM heavy");
 
+        ScanSubfolders = config.Bind("-------Loader-------","ScanSubfolders",false, 
+    "If enabled, will include audio files from subfolders when loading the local playlist.");
+
         ShowDebug = config.Bind("-------Debug-------", "Extra debug logging", false,
             new ConfigDescription("More robust logging for debugging", null,
                 new ConfigurationManagerAttributes { Order = 10, IsAdvanced = true }));
@@ -83,15 +88,6 @@ public static class PluginConfig
         private static string _configDirectory;
         private static readonly string FavoritePlaylistFile = "favorite_playlist.txt";
         private static readonly string StreamsPlaylistFile = "streams_playlist.txt";
-
-        // Default streams for first-time users
-        private static readonly string[] DefaultStreams = new string[]
-        {
-        "https://c22.radioboss.fm/stream/144",
-        "http://funkyunclefm.net:8000/fufm",
-        "https://icecast.radiofrance.fr/fip-hifi.aac",
-        "http://stream.animeradio.de/animeradio.mp3"
-        };
 
         public static List<string> HybridPlaylistPaths = new List<string>();
         public static List<string> StreamPlaylistPaths = new List<string>();
@@ -194,17 +190,35 @@ public static class PluginConfig
                     // Create file with default streams and comments
                     var defaultContent = new[]
                     {
-                "# Streams Playlist - Add your radio streams here",
-                "# One stream URL per line",
-                "# Lines starting with '#' are comments and will be ignored",
-                ""
-            };
+                        "# Streams Playlist - Add your radio streams here",
+                        "# One stream URL per line",
+                        "# Lines starting with '#' are comments and will be ignored",
+                        "https://c22.radioboss.fm/stream/144",
+                        "http://funkyunclefm.net:8000/fufm",
+                        "https://icecast.radiofrance.fr/fip-hifi.aac",
+                        "http://stream.animeradio.de/animeradio.mp3",
+                        ""
+                    };
                     File.WriteAllLines(filePath, defaultContent);
 
-                    // Only add non-comment lines to the actual playlist
-                    StreamPlaylistPaths.AddRange(DefaultStreams);
+                    Debug.Log($"Created default streams playlist");
+                    try
+                    {
+                        var lines = File.ReadAllLines(filePath)
+                        .Where(line => !string.IsNullOrWhiteSpace(line))
+                        .Where(line => !line.Trim().StartsWith("#")) // Skip comment lines
+                        .Select(line => line.Trim())
+                        .ToList();
 
-                    Debug.Log($"Created default streams playlist with {DefaultStreams.Length} streams");
+                        StreamPlaylistPaths.AddRange(lines);
+                        Debug.Log($"Loaded {StreamPlaylistPaths.Count} streams from DEFAULT streams playlist file");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"Error loading DEFAULT streams playlist: {ex}");
+                        StreamPlaylistPaths.Clear();
+                        // On corruption, do nothing - keep empty list
+                    }
                 }
             }
             catch (Exception ex)
