@@ -102,7 +102,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
 
                 _selectedTrackIndex = -1;
                 _lastClickedTrack = -1;
-                Debug.Log($"Active tab: {_activeTab}, Viewing: {_viewingPlaylistType}, Playing: {CustomMusicManager.CurrentPlaybackPlaylistType}");
+                if(PluginConfig.ShowDebug.Value)Debug.Log($"Active tab: {_activeTab}, Viewing: {_viewingPlaylistType}, Playing: {CustomMusicManager.CurrentPlaybackPlaylistType}");
             }
         }
     }
@@ -230,21 +230,18 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             // Use original window rects 
             _windowRect = GUI.Window(0, _windowRect, DrawMusicWindow, "˚✩*‧₊༺ Music Player " + $"({PluginConfig.ToggleUIKey.Value}) ༻₊‧*✩˚");
 
-        // Playlist window below main window
-        if (_playlistWindowVisible)
-        {
-            // Only set initial position once
-            if (_playlistWindowRect.width == 0)
+            // Playlist window below main window
+            if (_playlistWindowVisible)
             {
                 // Only set initial position once
                 if (_playlistWindowRect.width == 0)
                 {
                     _playlistWindowRect = new Rect(
-                        _windowRect.x,
-                        _windowRect.y + _windowRect.height + 5,
-                        _windowRect.width,
-                        160
-                    );
+                          _windowRect.x,
+                          _windowRect.y + _windowRect.height + 5,
+                          _windowRect.width,
+                          160
+                      );
                 }
                 else
                 {
@@ -253,27 +250,23 @@ public class MusicDisplayPlugin : BaseUnityPlugin
                     _playlistWindowRect.y = _windowRect.y + _windowRect.height;
                     _playlistWindowRect.width = _windowRect.width;
                 }
-
                 _playlistWindowRect = GUI.Window(1, _playlistWindowRect, DrawPlaylistWindow, "⋆⋆✮♪♫ Playlist ♫♪✮⋆⋆");
             }
-
-            _playlistWindowRect = GUI.Window(1, _playlistWindowRect, DrawPlaylistWindow, "⋆⋆✮♪♫ Playlist ♫♪✮⋆⋆");
         }
-    }
-    catch (System.Exception e)
-    {
-        Debug.LogError($"GUI Error: {e}");
-        _showGUI = false;
-    }
-    finally
-    {
-        // Restore original matrix
-        GUI.matrix = _originalMatrix;
-    }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"GUI Error: {e}");
+            _showGUI = false;
+        }
+        finally
+        {
+            // Restore original matrix
+            GUI.matrix = _originalMatrix;
+        }
 
-    // Handle resizing outside of window drawing (use original coordinates)
-    HandleResizing();
-}
+        // Handle resizing outside of window drawing (use original coordinates)
+        HandleResizing();
+    }
     private void InitializePlaylistData()
     {
         try
@@ -348,36 +341,13 @@ public class MusicDisplayPlugin : BaseUnityPlugin
     }
 
     private void HandleResizing()
-{
-    // Convert resize handle to screen coordinates using our scale
-    Rect absoluteResizeHandle = new Rect(
-        _playlistWindowRect.x * _uiScale + _resizeHandle.x * _uiScale,
-        _playlistWindowRect.y * _uiScale + _resizeHandle.y * _uiScale,
-        _resizeHandle.width * _uiScale,
-        _resizeHandle.height * _uiScale
-    );
-
-    // Convert mouse position to screen coordinates (GUI.matrix affects Event.current.mousePosition)
-    Vector2 mousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-
-    if (Event.current.type == EventType.MouseDown && absoluteResizeHandle.Contains(mousePosition))
     {
-        _isResizing = true;
-        _resizeStartMouse = mousePosition;
-        _resizeStartHeight = _playlistWindowRect.height;
-        Event.current.Use(); // Mark event as handled
-    }
-
-    if (_isResizing)
-    {
-        // Get current mouse position in screen coordinates
-        Vector2 currentMousePos = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-
-        float heightDelta = (currentMousePos.y - _resizeStartMouse.y) / _uiScale;
-        float newHeight = Mathf.Clamp(
-            _resizeStartHeight + heightDelta,
-            160, // Minimum height
-            700  // Maximum height
+        // Convert resize handle to screen coordinates using our scale
+        Rect absoluteResizeHandle = new Rect(
+            _playlistWindowRect.x * _uiScale + _resizeHandle.x * _uiScale,
+            _playlistWindowRect.y * _uiScale + _resizeHandle.y * _uiScale,
+            _resizeHandle.width * _uiScale,
+            _resizeHandle.height * _uiScale
         );
 
         // Convert mouse position to screen coordinates (GUI.matrix affects Event.current.mousePosition)
@@ -391,8 +361,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             Event.current.Use(); // Mark event as handled
         }
 
-        // End resizing on mouse up
-        if (Event.current.type == EventType.MouseUp)
+        if (_isResizing)
         {
             // Get current mouse position in screen coordinates
             Vector2 currentMousePos = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
@@ -419,11 +388,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             // Repaint GUI to show changes immediately
             GUI.changed = true;
         }
-
-        // Repaint GUI to show changes immediately
-        GUI.changed = true;
     }
-}
 
     private void InitStyles()
     {
@@ -1106,6 +1071,21 @@ public class MusicDisplayPlugin : BaseUnityPlugin
                     GUI.enabled = true;
 
                     GUILayout.FlexibleSpace();
+                    // Playlist preload and subfolder flags
+                    PluginConfig.PreloadEntirePlaylist.Value = GUILayout.Toggle(
+                        PluginConfig.PreloadEntirePlaylist.Value,
+                        "Preload",
+                        _toggleStyle,
+                        GUILayout.Height(20)
+                    );
+                    GUILayout.Space(5);
+                    PluginConfig.ScanSubfolders.Value = GUILayout.Toggle(
+                        PluginConfig.ScanSubfolders.Value,
+                        "Scan Subfolders",
+                        _toggleStyle,
+                        GUILayout.Height(20)
+                    );
+                    GUILayout.Space(5);
 
                     // Load button
                     if (GUILayout.Button("Load", GUILayout.ExpandWidth(false), GUILayout.MinWidth(1), GUILayout.Height(20)))
@@ -1144,6 +1124,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             alignment = TextAnchor.MiddleLeft,
             wordWrap = false,
             clipping = TextClipping.Overflow
+
         };
         var overflowButton = new GUIStyle(GUI.skin.button)
         {
@@ -1279,9 +1260,9 @@ public class MusicDisplayPlugin : BaseUnityPlugin
                 StreamingClip.TreatInputAsPlaylist = GUILayout.Toggle(StreamingClip.TreatInputAsPlaylist, "Playlist(.m3u/...)", GUILayout.Height(20), GUILayout.Width(120));
 
                 GUI.enabled = !connected && !string.IsNullOrEmpty(_customStreamPath);
-                if (GUILayout.Button("Connect", GUILayout.ExpandWidth(false), GUILayout.Height(20), GUILayout.Width(65)))
+                if (GUILayout.Button("Start", GUILayout.ExpandWidth(false), GUILayout.Height(20), GUILayout.Width(45)))
                 {
-                    ConnectToStream();
+                    StartStreamFromTab();
                 }
                 GUI.enabled = true;
             }
@@ -1297,7 +1278,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
                 {
                     LoadStreamsPlaylistFromFile();
                 }
-                GUILayout.Space(45);
+                GUILayout.Space(25);
 
                 connected = CustomMusicManager._streamingInstance != null;
                 GUI.enabled = connected;
@@ -2186,7 +2167,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             return playlist.CurrentTrackIndex;
         }
     }
-    private void ConnectToStream()
+    private void StartStreamFromTab()
     {
         if (string.IsNullOrEmpty(_customStreamPath))
         {
