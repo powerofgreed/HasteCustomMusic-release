@@ -1262,6 +1262,11 @@ public class CustomMusicManager : MonoBehaviour
                 newPlaylist != GetCurrentActivePlaylist() &&
                 !IsUserInitiatedChange)
             {
+                if (MusicPlayer.Instance.m_AudioSourceCurrent?.clip == null)
+                {
+                    PlaylistManager.PlayCurrentTrack();
+                    Debug.Log($"Empty clip. Playback restarted.");
+                }
                 Debug.Log($"Blocked InitRandomAndPlay to {newPlaylist?.name} (Locked to {CurrentPlaybackPlaylistType})");
                 return false; // Block the original method from executing
             }
@@ -1311,6 +1316,11 @@ public class CustomMusicManager : MonoBehaviour
                 newPlaylist != GetCurrentActivePlaylist() &&
                 !IsUserInitiatedChange)
             {
+                if (MusicPlayer.Instance.m_AudioSourceCurrent?.clip == null)
+                {
+                    PlaylistManager.PlayCurrentTrack();
+                    Debug.Log($"Empty clip. Playback restarted.");
+                }
                 Debug.Log($"Blocked ChangePlaylist to {newPlaylist?.name} (Locked to {CurrentPlaybackPlaylistType})");
                 return false; // Block the original method from executing
             }
