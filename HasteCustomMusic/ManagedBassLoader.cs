@@ -38,7 +38,13 @@ public static class ManagedBassLoader
         {
             try
             {
-                if (!Bass.Init(-1, 44100, DeviceInitFlags.Default))
+                var version = Bass.Version;
+                Debug.Log($"[ManagedBassLoader] BASS Version: {version}");
+
+                int freq = AudioSettings.outputSampleRate;
+                if (freq <= 0) freq = 44100; // Fallback
+
+                if (!Bass.Init(-1, freq, DeviceInitFlags.Default, IntPtr.Zero))
                 {
                     var err = Bass.LastError;
                     if (err != Errors.Already)

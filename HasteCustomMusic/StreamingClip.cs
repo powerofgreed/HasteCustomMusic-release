@@ -82,8 +82,10 @@ public class StreamingClip : MonoBehaviour
     private float _lastTitleEmitTime = 0f;
     private const float TitleEmitDebounce = 0.5f;
 
+
     // safety
     private static readonly object _initLock = new object();
+    private readonly object _audioLock = new object();
     private static bool _bassInitialized = false;
     private static bool _pluginsLoaded = false;
     public  static IntPtr _myProxyPtr;
@@ -242,7 +244,10 @@ public class StreamingClip : MonoBehaviour
     {
         _currentPath = null;
         try { _source?.Stop(); } catch { }
-        if (_mixer != 0) { try { Bass.StreamFree(_mixer); } catch { } _mixer = 0; }
+        lock (_audioLock)
+        {
+            if (_mixer != 0) { try { Bass.StreamFree(_mixer); } catch { } _mixer = 0; }
+        }
         if (_stream != 0) { try { Bass.StreamFree(_stream); } catch { } _stream = 0; }
         if (_clip != null) { try { Destroy(_clip); } catch { } _clip = null; }
         PublicTrackTitle = null;
@@ -721,27 +726,30 @@ public class StreamingClip : MonoBehaviour
 
     private void OnPCMRead(float[] data)
     {
-        if (_mixer == 0)
+        lock (_audioLock)
         {
-            Array.Clear(data, 0, data.Length);
-            return;
-        }
+            if (_mixer == 0)
+            {
+                Array.Clear(data, 0, data.Length);
+                return;
+            }
 
-        int bytesNeeded = data.Length * sizeof(float);
-        int bytesRead;
-        try { bytesRead = Bass.ChannelGetData(_mixer, data, bytesNeeded); } catch { bytesRead = 0; }
+            int bytesNeeded = data.Length * sizeof(float);
+            int bytesRead;
+            try { bytesRead = Bass.ChannelGetData(_mixer, data, bytesNeeded); } catch { bytesRead = 0; }
 
-        if (bytesRead <= 0)
-        {
-            Array.Clear(data, 0, data.Length);
-            if (PluginConfig.ShowDebug.Value) if (Time.frameCount % 300 == 0) Debug.Log($"[StreamingClip] Audio underrun: needed={bytesNeeded} got={bytesRead}");
-            return;
-        }
+            if (bytesRead <= 0)
+            {
+                Array.Clear(data, 0, data.Length);
+                if (PluginConfig.ShowDebug.Value) if (Time.frameCount % 300 == 0) Debug.Log($"[StreamingClip] Audio underrun: needed={bytesNeeded} got={bytesRead}");
+                return;
+            }
 
-        int floatsRead = Math.Max(0, bytesRead / sizeof(float));
-        if (floatsRead < data.Length)
-        {
-            for (int i = floatsRead; i < data.Length; i++) data[i] = 0f;
+            int floatsRead = Math.Max(0, bytesRead / sizeof(float));
+            if (floatsRead < data.Length)
+            {
+                for (int i = floatsRead; i < data.Length; i++) data[i] = 0f;
+            }
         }
     }
 

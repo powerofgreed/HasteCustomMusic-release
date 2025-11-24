@@ -555,7 +555,6 @@ public class MusicDisplayPlugin : BaseUnityPlugin
 
     void DrawMusicWindow(int windowID)
     {
-        InitStyles();
         // Save original background color
         Color originalColor = GUI.backgroundColor;
 
@@ -1251,7 +1250,7 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             GUILayout.BeginHorizontal();
             {
 
-                GUILayout.Label(connected ? "Status: Connected" : "Status: Not Connected", GUILayout.ExpandWidth(false), GUILayout.Height(20));
+                GUILayout.Label(connected ? "Status: Valid Path" : "Status: No Instance", GUILayout.ExpandWidth(false), GUILayout.Height(20));
 
 
 
