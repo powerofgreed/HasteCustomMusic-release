@@ -2268,9 +2268,9 @@ public class MusicDisplayPlugin : BaseUnityPlugin
                 {
                     float clipLen = player.m_AudioSourceCurrent.clip.length;
                     // If clip length is tiny or invalid skip
-                    if (clipLen > 0.01f)
+                    if (clipLen > 0.26f)
                     {
-                        float endThreshold = Mathf.Max(0.1f, clipLen - 0.01f);
+                        float endThreshold = Mathf.Max(0.1f, clipLen - 0.26f);
                         if (player.m_AudioSourceCurrent.time >= endThreshold)
                         {
                             shouldAdvance = true;
