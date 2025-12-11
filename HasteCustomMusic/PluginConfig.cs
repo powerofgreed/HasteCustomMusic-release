@@ -40,7 +40,7 @@ public static class PluginConfig
             "Play next track");
 
         GamepadHotkeysEnabled = config.Bind("-------Hotkeys-------", "GamepadHotkeys", true,
-            "Enable XInput gamepad hotkeys (D-pad Up: Toggle UI, D-pad Right: Next Track)");
+            "Enable XInput gamepad hotkeys (D-pad Up: Toggle UI, D-pad Down: Next Track)");
         LockEnabled = config.Bind("-------Playback-------", "Lock", true,
 
             "Lock to custom playlist mode");
@@ -193,10 +193,22 @@ public static class PluginConfig
                         "# Streams Playlist - Add your radio streams here",
                         "# One stream URL per line",
                         "# Lines starting with '#' are comments and will be ignored",
+                        "http://hyperadio.ru:8000/live",
                         "https://c22.radioboss.fm/stream/144",
+                        "https://kathy.torontocast.com:3060",
+                        "https://kpop.onlyhit.us/play",
                         "http://funkyunclefm.net:8000/fufm",
                         "https://icecast.radiofrance.fr/fip-hifi.aac",
                         "http://stream.animeradio.de/animeradio.mp3",
+                        "http://5.9.2.139:8000/any-anime.ru",
+                        "http://listen.nolife-radio.com",
+                        "http://cast.animu.com.br:9079",
+                        "https://stream-175.zeno.fm/hutw7c7q9c0uv",
+                        "https://stream20.usastreams.com/8208/stream",
+                        "https://live.turadio.stream:7004/stream",
+                        "https://stream.radioparadise.com/ti-global-320",
+                        "https://maestro.emfcdn.com/stream_for/k-love/tunein/aac",
+                        "https://wkcr.streamguys1.com/live?t=1765460140958",
                         ""
                     };
                     File.WriteAllLines(filePath, defaultContent);

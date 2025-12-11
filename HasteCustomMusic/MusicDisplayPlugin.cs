@@ -2355,8 +2355,8 @@ public class MusicDisplayPlugin : BaseUnityPlugin
             _showGUI = !_showGUI;
         }
 
-        // D-pad Right: Next Track (Xbox controller D-pad right)  
-        if (Gamepad.current.dpad.right.wasPressedThisFrame)
+        // D-pad Down: Next Track (Xbox controller D-pad down)  
+        if (Gamepad.current.dpad.down.wasPressedThisFrame)
         {
             CustomMusicManager.PlayNextTrack();
         }
