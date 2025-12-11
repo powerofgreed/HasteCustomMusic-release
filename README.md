@@ -31,7 +31,7 @@ This mod works best with my another plugin which add audio visualisation to the 
 1. Place music files in *`BepInEx/CustomMusic/`* or any choosen path in **.cfg**
 2. In-game:
    - **F2** or **DPAD-UP**: Toggle UI
-   - **F3** or **DAP-RIGHT**: Next track
+   - **F3** or **DAP-DOWN**: Next track
    - **Load**: Load audiofiles from path. **A non-existent directory will be created. RAM heavy operation**
    - **UI Buttons**: Play order, Shuffle, Next track
    - **Lock Custom**: Prevent playlist from changing back to default
